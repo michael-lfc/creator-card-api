@@ -245,7 +245,8 @@ function Server(serverConfig = {}) {
         responseComponents.body.status = 'error';
         responseComponents.body.message = error.isApplicationError
           ? error.message
-          : 'Some error occured.';
+          : 'Some error occurred.';
+        responseComponents.body.code = error.isApplicationError ? error.errorCode : undefined;
         responseComponents.body.errors = error.details || undefined;
         responseComponents.body.data = error.context;
 
