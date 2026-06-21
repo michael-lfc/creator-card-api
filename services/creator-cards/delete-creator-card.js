@@ -1,6 +1,5 @@
 const validator = require('@app-core/validator');
 const { appLogger } = require('@app-core/logger');
-// const CreatorCardMessages = require('@app/messages/creator-card');
 const CreatorCardMessages = require('../../messages/creator-card');
 const CreatorCardRepo = require('../../repository/creator-cards');
 const throwBusinessError = require('./throw-business-error');
@@ -37,11 +36,13 @@ async function deleteCreatorCard(serviceData) {
   const data = validator.validate(serviceData, parsedSpec);
 
   try {
+    // Find only cards owned by this creator
     const card = await CreatorCardRepo.findOne({
-      query: { slug: data.slug },
+      query: {
+        slug: data.slug,
+        creator_reference: data.creator_reference,
+      },
     });
-
-    appLogger.info({ card }, 'delete-card-debug');
 
     if (!card) {
       throwBusinessError(CreatorCardMessages.CARD_NOT_FOUND, 'NF01');
@@ -57,7 +58,7 @@ async function deleteCreatorCard(serviceData) {
       },
     });
 
-    const deletedCard = { ...card, created: card.created, updated: deletedAt, deleted: deletedAt };
+    const deletedCard = { ...card, updated: deletedAt, deleted: deletedAt };
 
     response = serializeCard(deletedCard);
   } catch (error) {
